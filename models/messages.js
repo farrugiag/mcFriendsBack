@@ -7,6 +7,6 @@ const messageSchema = mongoose.Schema({
     date: Date
 })
 
-const MessagesModel = mongoose.model('messages', message);
+const MessagesModel = mongoose.model('messages', message)
 
 module.exports = MessagesModel
