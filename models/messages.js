@@ -1,12 +1,12 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const messageSchema = mongoose.Schema({
-    emetteur: {type: mongoose.Schema.Types.Objectif, ref: 'users'},
-    recepteur: {type: mongoose.Schema.Types.Objectif, ref: 'users'},
-    message: String,
-    date: Date
-})
+  emetteur: { type: mongoose.Schema.Types.Objectif, ref: "users" },
+  recepteur: { type: mongoose.Schema.Types.Objectif, ref: "users" },
+  message: String,
+  date: Date,
+});
 
-const MessagesModel = mongoose.model('messages', message);
+const MessageModel = mongoose.model("messages", messageSchema);
 
-module.exports = MessagesModel
+module.exports = MessageModel;
