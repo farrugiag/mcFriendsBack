@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const EventSchema = mongoose.Schema({
+
+const eventSchema = mongoose.Schema({
   createur: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   quartier: { type: mongoose.Schema.Types.ObjectId, ref: "quartiers" },
   particants: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
@@ -12,5 +13,5 @@ const EventSchema = mongoose.Schema({
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "posts" }],
 });
 
-const EventModel = mongoose.model("events", EventSchema);
+const EventModel = mongoose.model("events", eventSchema);
 module.exports = EventModel;

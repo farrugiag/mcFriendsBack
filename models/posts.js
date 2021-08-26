@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const PostSchema = mongoose.Schema({
+const postSchema = mongoose.Schema({
   textContent: String,
   image: String,
   video: String,
@@ -11,6 +11,6 @@ const PostSchema = mongoose.Schema({
   type: String,
 });
 
-const PostModel = mongoose.model("posts", PostSchema);
+const PostModel = mongoose.model("posts", postSchema);
 
 module.exports = PostModel;

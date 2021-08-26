@@ -1,12 +1,12 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const commentairesSchema = mongoose.Schema({
-    createur: {type: mongoose.Schema.Types.Objectif, ref: 'users'},
-    content: String,
-    date: Date,
-    post: {type: mongoose.Schema.Types.Objectif, ref: 'posts'},
-})
+const commentaireSchema = mongoose.Schema({
+  createur: { type: mongoose.Schema.Types.Objectif, ref: "users" },
+  content: String,
+  date: Date,
+  post: { type: mongoose.Schema.Types.Objectif, ref: "posts" },
+});
 
-const CommentaireModel = mongoose.model('commentaires', commentairesSchema);
+const CommentaireModel = mongoose.model("commentaires", commentaireSchema);
 
-module.exports = CommentaireModel
+module.exports = CommentaireModel;
