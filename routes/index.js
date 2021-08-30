@@ -4,6 +4,10 @@ const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
 const UserModel = require("../models/users");
 
+const userModel = require("../models/users");
+
+const bcrypt = require("bcrypt");
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -66,6 +70,28 @@ router.post("/signup-commercant", async function (req, res, next) {
   });
   const newUserSaved = await newUser.save();
   res.json({ result: true, token: newUserSaved.token });
+});
+
+router.post("/login", async function (req, res, next) {
+  console.log(">>req.body", req.body);
+  const result = false;
+
+  if (req.body.email == "" || req.body.password == "") {
+    res.json({ result: false });
+  }
+
+  const user = await userModel.findOne({
+    email: req.body.email,
+  });
+
+  if (user) {
+    if (bcrypt.compareSync(req.body.password, user.password)) {
+      res.json({ result: true, token: user.token });
+      return;
+    }
+  }
+
+  res.json({ result });
 });
 
 module.exports = router;
