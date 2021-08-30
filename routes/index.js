@@ -4,10 +4,6 @@ const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
 const UserModel = require("../models/users");
 
-const userModel = require("../models/users");
-
-const bcrypt = require("bcrypt");
-
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -80,7 +76,7 @@ router.post("/login", async function (req, res, next) {
     res.json({ result: false });
   }
 
-  const user = await userModel.findOne({
+  const user = await UserModel.findOne({
     email: req.body.email,
   });
 
