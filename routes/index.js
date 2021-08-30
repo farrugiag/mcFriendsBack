@@ -13,9 +13,9 @@ router.post("/signup-particulier", async function (req, res, next) {
   console.log("req.body PARTICULIERS", req.body);
   console.log("centres d'interet", req.body.centresDinteret);
   console.log("quartiers fav", req.body.quartiersFavoris);
-  const findIfUserExists = await UserModel.find({ email: req.body.email });
+  const findIfUserExists = await UserModel.findOne({ email: req.body.email });
   console.log("findIfUserExists", findIfUserExists);
-  if (findIfUserExists.length !== 0) {
+  if (findIfUserExists) {
     //ON VÉRIFIE QUE SI L'EMAIL EST DÉJÀ UTILISÉ, ON NE CRÉE PAS UN DEUXIÈME COMPTE DANS LA BASE DE DONNÉES
     res.json({
       errorMessage: "Cet email a déjà été utilisé pour créer un compte.",
@@ -42,9 +42,9 @@ router.post("/signup-particulier", async function (req, res, next) {
 
 router.post("/signup-commercant", async function (req, res, next) {
   console.log("req.body COMMERCANTS", req.body);
-  const findIfUserExists = await UserModel.find({ email: req.body.email });
+  const findIfUserExists = await UserModel.findOne({ email: req.body.email });
   console.log("findIfUserExists", findIfUserExists);
-  if (findIfUserExists.length !== 0) {
+  if (findIfUserExists) {
     //ON VÉRIFIE QUE SI L'EMAIL EST DÉJÀ UTILISÉ, ON NE CRÉE PAS UN DEUXIÈME COMPTE DANS LA BASE DE DONNÉES
     res.json({
       errorMessage: "Cet email a déjà été utilisé pour créer un compte.",
