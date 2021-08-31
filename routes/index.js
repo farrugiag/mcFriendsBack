@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
 const UserModel = require("../models/users");
+const QuartierModel = require("../models/quartiers");
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -53,6 +54,10 @@ router.post("/signup-commercant", async function (req, res, next) {
   }
   const cost = 18;
   const hash = bcrypt.hashSync(req.body.password, cost);
+  const quartierActivity = await QuartierModel.findOne({
+    name: req.body.quartierActivity,
+  });
+  const quartierId = quartierActivity._id;
   const newUser = new UserModel({
     status: "commercant",
     nomEnseigne: req.body.nomEnseigne,
@@ -60,7 +65,7 @@ router.post("/signup-commercant", async function (req, res, next) {
     adresse: req.body.adresse,
     email: req.body.email,
     domainesActivity: req.body.domainesActivity,
-    quartierActivity: req.body.quartierActivity,
+    quartierActivity: quartierId,
     token: uid2(32),
     password: hash,
   });
