@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const uid2 = require("uid2");
+// const uid2 = require("uid2");
 const UserModel = require("../models/users");
+<<<<<<< HEAD
 const QuartierModel = require("../models/quartiers");
+=======
+
+const userModel = require("../models/users");
+>>>>>>> backendLogin
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -75,12 +80,20 @@ router.post("/signup-commercant", async function (req, res, next) {
 
 router.post("/login", async function (req, res, next) {
   console.log(">>req.body", req.body);
-  const result = false;
+  let result = false;
+  const error = [];
+  let token = null;
+  let user = null;
 
   if (req.body.email == "" || req.body.password == "") {
-    res.json({ result: false });
+    error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
+  if (error.length == 0) {
+    const user = await userModel.findOne({
+      email: req.body.email,
+    });
 
+<<<<<<< HEAD
   const user = await UserModel.findOne({
     email: req.body.email,
   });
@@ -89,10 +102,21 @@ router.post("/login", async function (req, res, next) {
     if (bcrypt.compareSync(req.body.password, user.password)) {
       res.json({ result: true, token: user.token });
       return;
+=======
+    if (user) {
+      if (bcrypt.compareSync(req.body.password, user.password)) {
+        result = true;
+        token = user.token;
+      } else {
+        result = false;
+        error.push("Email ou mot de passe incorrect");
+      }
+    } else {
+      error.push("Email ou mot de passe incorrect");
+>>>>>>> backendLogin
     }
   }
-
-  res.json({ result });
+  res.json({ result, user, error, token });
 });
 
 module.exports = router;
