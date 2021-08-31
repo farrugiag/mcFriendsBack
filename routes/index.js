@@ -3,12 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 // const uid2 = require("uid2");
 const UserModel = require("../models/users");
-<<<<<<< HEAD
 const QuartierModel = require("../models/quartiers");
-=======
-
-const userModel = require("../models/users");
->>>>>>> backendLogin
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -93,16 +88,6 @@ router.post("/login", async function (req, res, next) {
       email: req.body.email,
     });
 
-<<<<<<< HEAD
-  const user = await UserModel.findOne({
-    email: req.body.email,
-  });
-
-  if (user) {
-    if (bcrypt.compareSync(req.body.password, user.password)) {
-      res.json({ result: true, token: user.token });
-      return;
-=======
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
         result = true;
@@ -113,7 +98,6 @@ router.post("/login", async function (req, res, next) {
       }
     } else {
       error.push("Email ou mot de passe incorrect");
->>>>>>> backendLogin
     }
   }
   res.json({ result, user, error, token });
