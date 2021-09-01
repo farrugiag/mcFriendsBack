@@ -84,7 +84,7 @@ router.post("/login", async function (req, res, next) {
     error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
   if (error.length == 0) {
-    const user = await userModel.findOne({
+    const user = await UserModel.findOne({
       email: req.body.email,
     });
 
