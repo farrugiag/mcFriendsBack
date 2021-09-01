@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 // const uid2 = require("uid2");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
+const PostModel = require("../models/posts");
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -102,5 +103,24 @@ router.post("/login", async function (req, res, next) {
   }
   res.json({ result, user, error, token });
 });
+
+router.post("/addPost", async function (req, res, next){
+  console.log('req.body', req.body)
+
+  const searchTokenUser = await UserModel.findOne({
+    token: req.body.token
+  })
+  console.log('user token', searchTokenUser._id)
+  const userId = searchTokenUser._id
+
+  const newPost = new PostModel({
+    content: req.body.content,
+    type: req.body.type,
+    createur: userId
+  })
+  
+  const newPostSaved = await newPost.save()
+  res.json({ result:true, post:newPostSaved })
+})
 
 module.exports = router;
