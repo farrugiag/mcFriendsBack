@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const uid2 = require("uid2");
+// const uid2 = require("uid2");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
+const PostModel = require("../models/posts");
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -102,24 +103,35 @@ router.post("/signup-commercant", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
   console.time("TIME LOGIN");
   console.log(">>req.body", req.body);
-  const result = false;
+  let result = false;
+  const error = [];
+  let token = null;
+  let user = null;
 
   if (req.body.email == "" || req.body.password == "") {
-    res.json({ result: false });
+    error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
-  console.time("TIME LOGIN USERMODEL BDD");
-  const user = await UserModel.findOne({
-    email: req.body.email,
-  });
-  console.timeEnd("TIME LOGIN USERMODEL BDD");
-  if (user) {
-    if (bcrypt.compareSync(req.body.password, user.password)) {
-      res.json({ result: true, token: user.token });
-      return;
+  if (error.length == 0) {
+    console.time("TIME LOGIN USERMODEL FINDONE");
+    const user = await userModel.findOne({
+      email: req.body.email,
+    });
+    console.timeEnd("TIME LOGIN USERMODEL FINDONE");
+
+    if (user) {
+      if (bcrypt.compareSync(req.body.password, user.password)) {
+        result = true;
+        token = user.token;
+      } else {
+        result = false;
+        error.push("Email ou mot de passe incorrect");
+      }
+    } else {
+      error.push("Email ou mot de passe incorrect");
     }
   }
   console.timeEnd("TIME LOGIN");
-  res.json({ result });
+  res.json({ result, user, error, token });
 });
 
 //POST SEARCH UTILISATEUR
@@ -155,6 +167,25 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
   }
   console.timeEnd("TIME RECHERCHE UTILISATEUR");
   res.json({ userTableau });
+});
+
+router.post("/addPost", async function (req, res, next) {
+  console.log("req.body", req.body);
+
+  const searchTokenUser = await UserModel.findOne({
+    token: req.body.token,
+  });
+  console.log("user token", searchTokenUser._id);
+  const userId = searchTokenUser._id;
+
+  const newPost = new PostModel({
+    content: req.body.content,
+    type: req.body.type,
+    createur: userId,
+  });
+
+  const newPostSaved = await newPost.save();
+  res.json({ result: true, post: newPostSaved });
 });
 
 module.exports = router;
