@@ -6,6 +6,14 @@ const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 
+const cloudinary = require("cloudinary").v2;
+
+// cloudinary.config({
+//   cloud_name: CLOUDINARY_NAME,
+//   api_key: CLOUDINARY_API_KEY,
+//   api_secret: CLOUDINARY_API_SECRET,
+// });
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -169,23 +177,46 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
   res.json({ userTableau });
 });
 
+/*--------------------Add Post-------------------------------*/
 router.post("/addPost", async function (req, res, next) {
   console.log("req.body", req.body);
 
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
-  console.log("user token", searchTokenUser._id);
+  console.log("user token", searchTokenUser);
   const userId = searchTokenUser._id;
+
+  const searchQuartier = await QuartierModel.findOne({
+    quartier: req.body.quartier,
+  });
+  console.log("quartier ID", searchQuartier._id);
+  const quartierId = searchQuartier._id;
 
   const newPost = new PostModel({
     content: req.body.content,
     type: req.body.type,
     createur: userId,
+    quartier: quartierId,
+    commerceAssocie: userId,
   });
-
   const newPostSaved = await newPost.save();
+  console.log("newPostSaved", newPostSaved);
   res.json({ result: true, post: newPostSaved });
+});
+
+router.get("/feed", async function (req, res, next) {
+  const posts = await PostModel.find()
+    .populate("createur")
+    .populate("quartier")
+    .exec();
+
+  res.json({ result: true, posts });
+});
+
+router.post("/upload", async function (req, res, next) {
+  const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
+  res.json(resultCloudinary);
 });
 
 module.exports = router;
