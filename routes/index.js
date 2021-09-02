@@ -188,4 +188,9 @@ router.post("/addPost", async function (req, res, next) {
   res.json({ result: true, post: newPostSaved });
 });
 
+// POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
+router.post("/comment", async function (req, res, next) {
+  console.log("récup comment dans route:", req.body);
+  res.json({ result: true });
+});
 module.exports = router;
