@@ -249,11 +249,20 @@ router.post("/event", async function (req, res, next){
   })
   const userId = searchTokenUser._id
 
+  const searchQuartier = await QuartierModel.findOne({
+    quartier: req.body.quartier,
+  });
+  console.log("quartier ID", searchQuartier._id);
+  const quartierId = searchQuartier._id;
+
   const newEvent = new EventModel({
       createur: userId,
-      
+      content: req.body.content,
+      nomEvenement: req.body.nomEvenement,
+      quartier: quartierId,
   })
-  res.json({result: true})
+  const newEventSaved = await newEvent.save()
+  res.json({result: true , event: newEventSaved})
 })
 
 router.post("/upload", async function (req, res, next) {
