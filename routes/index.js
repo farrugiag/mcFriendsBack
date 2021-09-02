@@ -6,6 +6,8 @@ const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
+const EventModel = require("../models/events")
+
 const cloudinary = require("cloudinary").v2;
 
 // cloudinary.config({
@@ -195,12 +197,16 @@ router.post("/addPost", async function (req, res, next) {
   console.log("quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
 
+  const datePost = new Date()
+  console.log('datePost', datePost)
+
   const newPost = new PostModel({
     content: req.body.content,
     type: req.body.type,
     createur: userId,
     quartier: quartierId,
     commerceAssocie: userId,
+    date: datePost
   });
   const newPostSaved = await newPost.save();
   console.log("newPostSaved", newPostSaved);
@@ -234,6 +240,21 @@ router.get("/feed", async function (req, res, next) {
 
   res.json({ result: true, posts });
 });
+
+router.post("/event", async function (req, res, next){
+  console.log('POST /event req.body', req.body)
+
+  const searchTokenUser = await UserModel.findOne({
+    token : req.body.token
+  })
+  const userId = searchTokenUser._id
+
+  const newEvent = new EventModel({
+      createur: userId,
+      
+  })
+  res.json({result: true})
+})
 
 router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
