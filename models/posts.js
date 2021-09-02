@@ -9,6 +9,7 @@ const postSchema = mongoose.Schema({
   quartier: { type: mongoose.Schema.Types.ObjectId, ref: "quartiers" },
   commerceAssocie: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   type: String,
+  date: Date
 });
 
 const PostModel = mongoose.model("posts", postSchema);

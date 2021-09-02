@@ -4,7 +4,7 @@ const eventSchema = mongoose.Schema({
   createur: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   quartier: { type: mongoose.Schema.Types.ObjectId, ref: "quartiers" },
   particants: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  description: String,
+  content: String,
   dateDebut: Date,
   dateFin: Date,
   nomEvenement: String,
