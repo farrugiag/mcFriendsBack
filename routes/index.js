@@ -117,17 +117,19 @@ router.post("/login", async function (req, res, next) {
   let user = null;
 
   if (req.body.email == "" || req.body.password == "") {
+    //ON VERIFIE QUE L'UTILISATEUR A BIEN REMPLIS LES CHAMPS DE SAISIES
     error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
   if (error.length == 0) {
-    console.time("TIME LOGIN USERMODEL FINDONE");
-    const user = await userModel.findOne({
+    //SI IL N'Y A PAS D'ERREUR ON VA CHERCHER SI L'UTILISATEUR EXISTE DANS NOTRE BDD
+    const user = await UserModel.findOne({
       email: req.body.email,
     });
     console.timeEnd("TIME LOGIN USERMODEL FINDONE");
 
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
+        //ON COMPARE LE MOT DE PASSE ENVOYE PAR L'UTILISATEUR ET CELUI CRYPTE EN BDD
         result = true;
         token = user.token;
       } else {
