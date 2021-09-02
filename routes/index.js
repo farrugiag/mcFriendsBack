@@ -205,13 +205,11 @@ router.post("/addPost", async function (req, res, next) {
   res.json({ result: true, post: newPostSaved });
 });
 
-<<<<<<< HEAD
 // POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
 router.post("/comment", async function (req, res, next) {
   console.log("récup comment dans route:", req.body);
   res.json({ result: true });
 });
-=======
 router.get("/feed", async function (req, res, next) {
   const posts = await PostModel.find()
     .populate("createur")
@@ -226,5 +224,4 @@ router.post("/upload", async function (req, res, next) {
   res.json(resultCloudinary);
 });
 
->>>>>>> 52d0b9f8a50a5c1b8649fca7f32edfdbce1b49fe
 module.exports = router;
