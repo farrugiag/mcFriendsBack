@@ -7,6 +7,7 @@
 var app = require("../app");
 var debug = require("debug")("backend:server");
 var http = require("http");
+const UserModel = require("../models/users");
 
 /**
  * Get port from environment and store in Express.
@@ -25,9 +26,15 @@ const io = require("socket.io")(server);
 
 io.on("connection", function (socket) {
   console.log("a user is connected");
-  socket.on("sendMessage", function (message) {
+  socket.on("sendMessage", async function (message) {
     console.log(message);
-    socket.emit("sendMessageFromBack", message);
+    const searchUser = await UserModel.findOne({ token: message.token });
+    console.log(">>searchUser", searchUser);
+    dataMessage = {
+      message: message.message,
+      user: searchUser.nom,
+    };
+    socket.emit("sendMessageFromBack", dataMessage);
   });
 });
 
