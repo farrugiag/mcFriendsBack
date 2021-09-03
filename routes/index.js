@@ -278,6 +278,7 @@ router.post("/event", async function (req, res, next) {
     quartier: quartierId,
     dateDebut: dateDebutBdd,
     dateFin: dateFinBdd,
+    photo: req.body.image ? req.body.image : "",
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });
