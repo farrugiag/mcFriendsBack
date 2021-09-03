@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
+const CommentaireModel = require("../models/commentaires");
+const EventModel = require("../models/events")
 
 const cloudinary = require("cloudinary").v2;
 
@@ -189,14 +191,19 @@ router.post("/addPost", async function (req, res, next) {
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
-  console.log("user token", searchTokenUser);
   const userId = searchTokenUser._id;
+
+  const searchStatusUser = await UserModel.findById(searchTokenUser._id)
+  console.log('satus search', searchStatusUser)
+  const status = searchStatusUser.status
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
   });
-  console.log("quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
+
+  const datePost = new Date()
+  console.log('datePost', datePost)
 
   const newPost = new PostModel({
     content: req.body.content,
@@ -204,6 +211,8 @@ router.post("/addPost", async function (req, res, next) {
     createur: userId,
     quartier: quartierId,
     commerceAssocie: userId,
+    date: datePost,
+    type: status
   });
   const newPostSaved = await newPost.save();
   console.log("newPostSaved", newPostSaved);
@@ -213,8 +222,22 @@ router.post("/addPost", async function (req, res, next) {
 // POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
 router.post("/comment", async function (req, res, next) {
   console.log("récup comment dans route:", req.body);
-  res.json({ result: true });
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log("recherche user via token", searchUser);
+  const userId = searchUser._id;
+  console.log("userId via token:", userId);
+  const dateComment = new Date();
+  console.log("date comment:", dateComment);
+  const newComment = new CommentaireModel({
+    createur: userId,
+    content: req.body.comment,
+    date: dateComment,
+  });
+  const newCommentSaved = await newComment.save();
+  console.log("new comment saved:", newCommentSaved);
+  res.json({ result: true, comment: newCommentSaved });
 });
+// RENVOI POST AU FEED
 router.get("/feed", async function (req, res, next) {
   const posts = await PostModel.find()
     .populate("createur")
@@ -223,6 +246,30 @@ router.get("/feed", async function (req, res, next) {
 
   res.json({ result: true, posts });
 });
+
+router.post("/event", async function (req, res, next){
+  console.log('POST /event req.body', req.body)
+
+  const searchTokenUser = await UserModel.findOne({
+    token : req.body.token
+  })
+  const userId = searchTokenUser._id
+
+  const searchQuartier = await QuartierModel.findOne({
+    quartier: req.body.quartier,
+  });
+  console.log("quartier ID", searchQuartier._id);
+  const quartierId = searchQuartier._id;
+
+  const newEvent = new EventModel({
+      createur: userId,
+      content: req.body.content,
+      nomEvenement: req.body.nomEvenement,
+      quartier: quartierId,
+  })
+  const newEventSaved = await newEvent.save()
+  res.json({result: true , event: newEventSaved})
+})
 
 router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
