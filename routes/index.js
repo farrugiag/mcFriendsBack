@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-// const uid2 = require("uid2");
+const uid2 = require("uid2");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
-const EventModel = require("../models/events")
+const EventModel = require("../models/events");
 
 const cloudinary = require("cloudinary").v2;
 
@@ -124,6 +124,7 @@ router.post("/login", async function (req, res, next) {
     error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
   if (error.length == 0) {
+    console.time("TIME LOGIN USERMODEL FINDONE");
     //SI IL N'Y A PAS D'ERREUR ON VA CHERCHER SI L'UTILISATEUR EXISTE DANS NOTRE BDD
     const user = await UserModel.findOne({
       email: req.body.email,
@@ -131,6 +132,7 @@ router.post("/login", async function (req, res, next) {
     console.timeEnd("TIME LOGIN USERMODEL FINDONE");
 
     if (user) {
+      console.time("TIME LOGIN BCRYPT COMPARE");
       if (bcrypt.compareSync(req.body.password, user.password)) {
         //ON COMPARE LE MOT DE PASSE ENVOYE PAR L'UTILISATEUR ET CELUI CRYPTE EN BDD
         result = true;
@@ -139,6 +141,7 @@ router.post("/login", async function (req, res, next) {
         result = false;
         error.push("Email ou mot de passe incorrect");
       }
+      console.time("TIME LOGIN BCRYPT COMPARE");
     } else {
       error.push("Email ou mot de passe incorrect");
     }
@@ -191,9 +194,9 @@ router.post("/addPost", async function (req, res, next) {
   });
   const userId = searchTokenUser._id;
 
-  const searchStatusUser = await UserModel.findById(searchTokenUser._id)
-  console.log('satus search', searchStatusUser)
-  const status = searchStatusUser.status
+  const searchStatusUser = await UserModel.findById(searchTokenUser._id);
+  console.log("satus search", searchStatusUser);
+  const status = searchStatusUser.status;
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
@@ -209,7 +212,7 @@ router.post("/addPost", async function (req, res, next) {
     quartier: quartierId,
     commerceAssocie: userId,
     date: datePost,
-    type: status
+    type: status,
   });
   const newPostSaved = await newPost.save();
   console.log("newPostSaved", newPostSaved);
@@ -252,9 +255,9 @@ router.post("/event", async function (req, res, next){
   // console.log('POST /event req.body', req.body)
 
   const searchTokenUser = await UserModel.findOne({
-    token : req.body.token
-  })
-  const userId = searchTokenUser._id
+    token: req.body.token,
+  });
+  const userId = searchTokenUser._id;
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
