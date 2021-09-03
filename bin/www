@@ -30,10 +30,11 @@ io.on("connection", function (socket) {
   socket.on("sendMessage", async function (message) {
     // console.log(message);
     const searchUser = await UserModel.findOne({ token: message.token });
-    // console.log(">>searchUser", searchUser);
+    console.log(">>searchUser", searchUser);
     const datePost = new Date();
-    console.log("datePost", datePost);
-    console.log(">>datePost.toDateString", datePost.toDateString());
+    // const datePost = new Date("2021-09-03 07:03:00");
+    // console.log("datePost", datePost);
+
     const newMessage = new MessageModel({
       emetteur: searchUser._id,
       recepteur: searchUser._id,
@@ -42,20 +43,21 @@ io.on("connection", function (socket) {
     });
 
     const newMessageSaved = await newMessage.save();
-    console.log(">>newMessageSaved", newMessageSaved);
+    // console.log(">>newMessageSaved", newMessageSaved);
     const dateHours = newMessageSaved.date.getHours();
-    const dateMinutes = newMessageSaved.date.getMinutes();
-    const dateDay = newMessageSaved.date.getDate();
-    const dateMonth = newMessageSaved.date.getMonth();
-    // date.splice(0, 0, newMessageSaved.date.getHours());
-    // date.splice(1, 0, newMessageSaved.date.getMinutes());
+
+    let dateMinutes = newMessageSaved.date.getMinutes();
+    if (dateMinutes < 10) {
+      dateMinutes = `0${dateMinutes}`;
+    }
+    const dateWeek = newMessageSaved.date.toLocaleDateString();
+    // console.log(">>date", dateWeek);
     dataMessage = {
       message: message.message,
       user: searchUser.nom,
       dateHours: dateHours,
       dateMinutes: dateMinutes,
-      dateDay: dateDay,
-      dateMonth: dateMonth,
+      dateWeek: dateWeek,
     };
     io.emit("sendMessageFromBack", dataMessage);
   });
