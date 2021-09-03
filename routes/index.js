@@ -121,6 +121,7 @@ router.post("/login", async function (req, res, next) {
     error.push("Champs vides, veuillez entrer votre email et mot de passe");
   }
   if (error.length == 0) {
+    console.time("TIME LOGIN USERMODEL FINDONE");
     //SI IL N'Y A PAS D'ERREUR ON VA CHERCHER SI L'UTILISATEUR EXISTE DANS NOTRE BDD
     const user = await UserModel.findOne({
       email: req.body.email,
@@ -128,6 +129,7 @@ router.post("/login", async function (req, res, next) {
     console.timeEnd("TIME LOGIN USERMODEL FINDONE");
 
     if (user) {
+      console.time("TIME LOGIN BCRYPT COMPARE");
       if (bcrypt.compareSync(req.body.password, user.password)) {
         //ON COMPARE LE MOT DE PASSE ENVOYE PAR L'UTILISATEUR ET CELUI CRYPTE EN BDD
         result = true;
@@ -136,6 +138,7 @@ router.post("/login", async function (req, res, next) {
         result = false;
         error.push("Email ou mot de passe incorrect");
       }
+      console.time("TIME LOGIN BCRYPT COMPARE");
     } else {
       error.push("Email ou mot de passe incorrect");
     }
