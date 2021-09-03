@@ -15,15 +15,9 @@ const EventModel = require("../models/events");
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-<<<<<<< HEAD
-  cloud_name: CLOUDINARY_NAME,
-  api_key: CLOUDINARY_API_KEY,
-  api_secret: CLOUDINARY_API_SECRET,
-=======
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
->>>>>>> uploadphoto
 });
 
 /* GET home page. */
@@ -275,28 +269,17 @@ router.post("/event", async function (req, res, next) {
   });
   console.log("Event quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
-<<<<<<< HEAD
-
-  const dateDebut = new Date(req.body.dateDebut);
-  const dateFin = new Date(req.body.dateFin);
-=======
   let dateDebutBdd = new Date(req.body.dateDebut);
   let dateFinBdd = new Date(req.body.dateFin);
->>>>>>> uploadphoto
 
   const newEvent = new EventModel({
     createur: userId,
     content: req.body.content,
     nomEvenement: req.body.nomEvenement,
     quartier: quartierId,
-<<<<<<< HEAD
-    dateDebut: dateDebut,
-    dateFin: dateFin,
-=======
     dateDebut: dateDebutBdd,
     dateFin: dateFinBdd,
     photo: req.body.image ? req.body.image : "",
->>>>>>> uploadphoto
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });
