@@ -197,13 +197,14 @@ router.post("/addPost", async function (req, res, next) {
   const userId = searchTokenUser._id;
 
   const searchStatusUser = await UserModel.findById(searchTokenUser._id);
-  console.log("satus search", searchStatusUser);
+  // console.log("satus search", searchStatusUser);
   const status = searchStatusUser.status;
 
   const searchQuartier = await QuartierModel.findOne({
-    quartier: req.body.quartier,
+    name: req.body.quartier,
   });
   const quartierId = searchQuartier._id;
+  console.log("id quartier", quartierId);
 
   const datePost = new Date();
 
@@ -218,7 +219,7 @@ router.post("/addPost", async function (req, res, next) {
     image: req.body.photoAdded ? req.body.photoAdded : "",
   });
   const newPostSaved = await newPost.save();
-  console.log("newPostSaved", newPostSaved);
+  // console.log("newPostSaved", newPostSaved);
   res.json({ result: true, post: newPostSaved });
 });
 
@@ -263,21 +264,20 @@ router.post("/event", async function (req, res, next) {
   const userId = searchTokenUser._id;
 
   const searchQuartier = await QuartierModel.findOne({
-    quartier: req.body.quartier,
+    name: req.body.quartier,
   });
-  console.log("quartier ID", searchQuartier._id);
+  console.log("Event quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
-
-  const dateDebut = new Date(req.body.dateDebut);
-  const dateFin = new Date(req.body.dateFin);
+  let dateDebutBdd = new Date(req.body.dateDebut);
+  let dateFinBdd = new Date(req.body.dateFin);
 
   const newEvent = new EventModel({
     createur: userId,
     content: req.body.content,
     nomEvenement: req.body.nomEvenement,
     quartier: quartierId,
-    dateDebut: dateDebut,
-    dateFin: dateFin,
+    dateDebut: dateDebutBdd,
+    dateFin: dateFinBdd,
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });
@@ -290,6 +290,16 @@ router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload(adresseTMP);
   fs.unlinkSync(adresseTMP);
   res.json(resultCloudinary);
+});
+
+router.get("/chat", async function (req, res, next) {
+  console.log(">>req.query", req.query);
+  const searchUser = await UserModel.findOne({ token: req.query.token });
+  const searchMessage = await MessageModel.find({
+    emetteur: searchUser._id,
+  });
+  console.log("searchMessage", searchMessage);
+  res.json({ result: true, messages: searchMessage });
 });
 
 module.exports = router;
