@@ -33,6 +33,7 @@ io.on("connection", function (socket) {
     // console.log(">>searchUser", searchUser);
     const datePost = new Date();
     console.log("datePost", datePost);
+    console.log(">>datePost.toDateString", datePost.toDateString());
     const newMessage = new MessageModel({
       emetteur: searchUser._id,
       recepteur: searchUser._id,
@@ -42,11 +43,19 @@ io.on("connection", function (socket) {
 
     const newMessageSaved = await newMessage.save();
     console.log(">>newMessageSaved", newMessageSaved);
-
+    const dateHours = newMessageSaved.date.getHours();
+    const dateMinutes = newMessageSaved.date.getMinutes();
+    const dateDay = newMessageSaved.date.getDate();
+    const dateMonth = newMessageSaved.date.getMonth();
+    // date.splice(0, 0, newMessageSaved.date.getHours());
+    // date.splice(1, 0, newMessageSaved.date.getMinutes());
     dataMessage = {
-      message: newMessageSaved.message,
+      message: message.message,
       user: searchUser.nom,
-      date: newMessage.date,
+      dateHours: dateHours,
+      dateMinutes: dateMinutes,
+      dateDay: dateDay,
+      dateMonth: dateMonth,
     };
     io.emit("sendMessageFromBack", dataMessage);
   });
