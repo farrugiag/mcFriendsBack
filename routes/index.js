@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-// const uid2 = require("uid2");
+const uid2 = require("uid2");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
-const EventModel = require("../models/events")
+const EventModel = require("../models/events");
 
 const cloudinary = require("cloudinary").v2;
 
@@ -190,17 +190,17 @@ router.post("/addPost", async function (req, res, next) {
   });
   const userId = searchTokenUser._id;
 
-  const searchStatusUser = await UserModel.findById(searchTokenUser._id)
-  console.log('satus search', searchStatusUser)
-  const status = searchStatusUser.status
+  const searchStatusUser = await UserModel.findById(searchTokenUser._id);
+  console.log("satus search", searchStatusUser);
+  const status = searchStatusUser.status;
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
   });
   const quartierId = searchQuartier._id;
 
-  const datePost = new Date()
-  console.log('datePost', datePost)
+  const datePost = new Date();
+  console.log("datePost", datePost);
 
   const newPost = new PostModel({
     content: req.body.content,
@@ -209,7 +209,7 @@ router.post("/addPost", async function (req, res, next) {
     quartier: quartierId,
     commerceAssocie: userId,
     date: datePost,
-    type: status
+    type: status,
   });
   const newPostSaved = await newPost.save();
   console.log("newPostSaved", newPostSaved);
@@ -244,13 +244,13 @@ router.get("/feed", async function (req, res, next) {
   res.json({ result: true, posts });
 });
 
-router.post("/event", async function (req, res, next){
-  console.log('POST /event req.body', req.body)
+router.post("/event", async function (req, res, next) {
+  console.log("POST /event req.body", req.body);
 
   const searchTokenUser = await UserModel.findOne({
-    token : req.body.token
-  })
-  const userId = searchTokenUser._id
+    token: req.body.token,
+  });
+  const userId = searchTokenUser._id;
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
@@ -259,14 +259,14 @@ router.post("/event", async function (req, res, next){
   const quartierId = searchQuartier._id;
 
   const newEvent = new EventModel({
-      createur: userId,
-      content: req.body.content,
-      nomEvenement: req.body.nomEvenement,
-      quartier: quartierId,
-  })
-  const newEventSaved = await newEvent.save()
-  res.json({result: true , event: newEventSaved})
-})
+    createur: userId,
+    content: req.body.content,
+    nomEvenement: req.body.nomEvenement,
+    quartier: quartierId,
+  });
+  const newEventSaved = await newEvent.save();
+  res.json({ result: true, event: newEventSaved });
+});
 
 router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
