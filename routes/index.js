@@ -188,13 +188,15 @@ router.post("/addPost", async function (req, res, next) {
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
-  console.log("user token", searchTokenUser);
   const userId = searchTokenUser._id;
+
+  const searchStatusUser = await UserModel.findById(searchTokenUser._id)
+  console.log('satus search', searchStatusUser)
+  const status = searchStatusUser.status
 
   const searchQuartier = await QuartierModel.findOne({
     quartier: req.body.quartier,
   });
-  console.log("quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
 
   const datePost = new Date()
@@ -206,7 +208,8 @@ router.post("/addPost", async function (req, res, next) {
     createur: userId,
     quartier: quartierId,
     commerceAssocie: userId,
-    date: datePost
+    date: datePost,
+    type: status
   });
   const newPostSaved = await newPost.save();
   console.log("newPostSaved", newPostSaved);
