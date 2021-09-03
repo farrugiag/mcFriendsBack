@@ -9,7 +9,7 @@ const CommentaireModel = require("../models/commentaires");
 const EventModel = require("../models/events");
 
 const cloudinary = require("cloudinary").v2;
-
+const MessageModel = require("../models/messages");
 
 // cloudinary.config({
 //   cloud_name: CLOUDINARY_NAME,
@@ -203,7 +203,7 @@ router.post("/addPost", async function (req, res, next) {
   });
   const quartierId = searchQuartier._id;
 
-  const datePost = new Date()
+  const datePost = new Date();
 
   const newPost = new PostModel({
     content: req.body.content,
@@ -244,14 +244,14 @@ router.get("/feed", async function (req, res, next) {
     .populate("quartier")
     .exec();
   const events = await EventModel.find()
-  .populate("createur")
-  .populate("quartier")
-  .exec()
-  console.log("events",events)
+    .populate("createur")
+    .populate("quartier")
+    .exec();
+  console.log("events", events);
   res.json({ result: true, posts, events });
 });
 
-router.post("/event", async function (req, res, next){
+router.post("/event", async function (req, res, next) {
   // console.log('POST /event req.body', req.body)
 
   const searchTokenUser = await UserModel.findOne({
@@ -265,24 +265,34 @@ router.post("/event", async function (req, res, next){
   console.log("quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
 
-  const dateDebut = new Date(req.body.dateDebut)
-  const dateFin = new Date(req.body.dateFin)
+  const dateDebut = new Date(req.body.dateDebut);
+  const dateFin = new Date(req.body.dateFin);
 
   const newEvent = new EventModel({
-      createur: userId,
-      content: req.body.content,
-      nomEvenement: req.body.nomEvenement,
-      quartier: quartierId,
-      dateDebut: dateDebut,
-      dateFin: dateFin
-  })
-  const newEventSaved = await newEvent.save()
-  res.json({result: true , event: newEventSaved})
-})
+    createur: userId,
+    content: req.body.content,
+    nomEvenement: req.body.nomEvenement,
+    quartier: quartierId,
+    dateDebut: dateDebut,
+    dateFin: dateFin,
+  });
+  const newEventSaved = await newEvent.save();
+  res.json({ result: true, event: newEventSaved });
+});
 
 router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
   res.json(resultCloudinary);
+});
+
+router.get("/chat", async function (req, res, next) {
+  console.log(">>req.query", req.query);
+  const searchUser = await UserModel.findOne({ token: req.query.token });
+  const searchMessage = await MessageModel.find({
+    emetteur: searchUser._id,
+  });
+  console.log("searchMessage", searchMessage);
+  res.json({ result: true, messages: searchMessage });
 });
 
 module.exports = router;
