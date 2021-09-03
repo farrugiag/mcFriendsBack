@@ -8,6 +8,7 @@ var app = require("../app");
 var debug = require("debug")("backend:server");
 var http = require("http");
 const UserModel = require("../models/users");
+const MessageModel = require("../models/messages");
 
 /**
  * Get port from environment and store in Express.
@@ -25,16 +26,29 @@ var server = http.createServer(app);
 const io = require("socket.io")(server);
 
 io.on("connection", function (socket) {
-  console.log("a user is connected");
+  // console.log("a user is connected");
   socket.on("sendMessage", async function (message) {
-    console.log(message);
+    // console.log(message);
     const searchUser = await UserModel.findOne({ token: message.token });
-    console.log(">>searchUser", searchUser);
-    dataMessage = {
+    // console.log(">>searchUser", searchUser);
+    const datePost = new Date();
+    console.log("datePost", datePost);
+    const newMessage = new MessageModel({
+      emetteur: searchUser._id,
+      recepteur: searchUser._id,
       message: message.message,
+      date: datePost,
+    });
+
+    const newMessageSaved = await newMessage.save();
+    console.log(">>newMessageSaved", newMessageSaved);
+
+    dataMessage = {
+      message: newMessageSaved.message,
       user: searchUser.nom,
+      date: newMessage.date,
     };
-    socket.emit("sendMessageFromBack", dataMessage);
+    io.emit("sendMessageFromBack", dataMessage);
   });
 });
 
