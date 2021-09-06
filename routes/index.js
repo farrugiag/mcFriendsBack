@@ -202,7 +202,7 @@ router.post("/addPost", async function (req, res, next) {
     name: req.body.quartier,
   });
   const quartierId = searchQuartier._id;
-  console.log('id quartier', quartierId)
+  console.log("id quartier", quartierId);
 
   const datePost = new Date();
 
@@ -266,37 +266,20 @@ router.post("/event", async function (req, res, next) {
   console.log("Event quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
 
-<<<<<<< HEAD
-  let dateDebutBdd = new Date(req.body.dateDebut)
-  let dateFinBdd = new Date(req.body.dateFin)
-
-  const newEvent = new EventModel({
-      createur: userId,
-      content: req.body.content,
-      nomEvenement: req.body.nomEvenement,
-      quartier: quartierId,
-      dateDebut: dateDebutBdd,
-      dateFin: dateFinBdd
-  })
-  const newEventSaved = await newEvent.save()
-  res.json({result: true , event: newEventSaved})
-})
-=======
-  const dateDebut = new Date(req.body.dateDebut);
-  const dateFin = new Date(req.body.dateFin);
+  let dateDebutBdd = new Date(req.body.dateDebut);
+  let dateFinBdd = new Date(req.body.dateFin);
 
   const newEvent = new EventModel({
     createur: userId,
     content: req.body.content,
     nomEvenement: req.body.nomEvenement,
     quartier: quartierId,
-    dateDebut: dateDebut,
-    dateFin: dateFin,
+    dateDebut: dateDebutBdd,
+    dateFin: dateFinBdd,
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });
 });
->>>>>>> socketBack
 
 router.post("/upload", async function (req, res, next) {
   const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
