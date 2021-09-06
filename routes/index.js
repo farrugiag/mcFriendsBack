@@ -11,6 +11,7 @@ const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
 const EventModel = require("../models/events");
+const MessageModel = require("../models/messages");
 
 const cloudinary = require("cloudinary").v2;
 
@@ -298,14 +299,39 @@ router.post("/upload", async function (req, res, next) {
   res.json(resultCloudinary);
 });
 
-router.get("/chat", async function (req, res, next) {
-  console.log(">>req.query", req.query);
-  const searchUser = await UserModel.findOne({ token: req.query.token });
+router.post("/chat", async function (req, res, next) {
+  console.log(">>req.query", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
   const searchMessage = await MessageModel.find({
     emetteur: searchUser._id,
   });
   console.log("searchMessage", searchMessage);
-  res.json({ result: true, messages: searchMessage });
+  let dataMessage = [];
+
+  for (let i = 0; i < searchMessage.length; i++) {
+    let dateHours = searchMessage[i].date.getHours();
+    if (dateHours < 10) {
+      dateHours = `0${dateHours}`;
+    }
+    let dateMinutes = searchMessage[i].date.getMinutes();
+    if (dateMinutes < 10) {
+      dateMinutes = `0${dateMinutes}`;
+    }
+    const dateWeek = searchMessage[i].date.toLocaleDateString();
+    const message = searchMessage[i].message;
+    const messages = {
+      message: message,
+      user: searchUser.nom,
+      dateHours: dateHours,
+      dateMinutes: dateMinutes,
+      dateWeek: dateWeek,
+    };
+    dataMessage.push(messages);
+    console.log(">>messages", dataMessage);
+  }
+
+  res.json({ result: true, messages: dataMessage });
 });
 
 module.exports = router;

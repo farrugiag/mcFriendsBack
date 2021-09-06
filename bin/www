@@ -44,7 +44,10 @@ io.on("connection", function (socket) {
 
     const newMessageSaved = await newMessage.save();
     // console.log(">>newMessageSaved", newMessageSaved);
-    const dateHours = newMessageSaved.date.getHours();
+    let dateHours = newMessageSaved.date.getHours();
+    if (dateHours < 10) {
+      dateHours = `0${dateHours}`;
+    }
 
     let dateMinutes = newMessageSaved.date.getMinutes();
     if (dateMinutes < 10) {
@@ -52,7 +55,7 @@ io.on("connection", function (socket) {
     }
     const dateWeek = newMessageSaved.date.toLocaleDateString();
     // console.log(">>date", dateWeek);
-    dataMessage = {
+    const dataMessage = {
       message: message.message,
       user: searchUser.nom,
       dateHours: dateHours,
