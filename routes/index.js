@@ -226,17 +226,19 @@ router.post("/addPost", async function (req, res, next) {
 
 // POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
 router.post("/comment", async function (req, res, next) {
-  console.log("récup comment dans route:", req.body);
+  // console.log("récup comment dans route:", req.body);
+  // console.log("récup postiD dans route:", req.body.postId);
   const searchUser = await UserModel.findOne({ token: req.body.token });
   console.log("recherche user via token", searchUser);
   const userId = searchUser._id;
-  console.log("userId via token:", userId);
+  // console.log("userId via token:", userId);
   const dateComment = new Date();
-  console.log("date comment:", dateComment);
+  // console.log("date comment:", dateComment);
   const newComment = new CommentaireModel({
     createur: userId,
     content: req.body.comment,
     date: dateComment,
+    post: req.body.postId,
   });
   const newCommentSaved = await newComment.save();
   console.log("new comment saved:", newCommentSaved);
@@ -253,7 +255,9 @@ router.get("/feed", async function (req, res, next) {
     .populate("quartier")
     .exec();
   console.log("events", events);
-  res.json({ result: true, posts, events });
+  const comments = await CommentaireModel.find().populate("post").exec();
+  console.log("comments", comments);
+  res.json({ result: true, posts, events, comments });
 });
 
 router.post("/event", async function (req, res, next) {
