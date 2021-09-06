@@ -2,20 +2,24 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
+const fs = require("fs");
+var uniqid = require("uniqid");
+
+const request = require("sync-request");
 const UserModel = require("../models/users");
 const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
 const EventModel = require("../models/events");
-
-const cloudinary = require("cloudinary").v2;
 const MessageModel = require("../models/messages");
 
-// cloudinary.config({
-//   cloud_name: CLOUDINARY_NAME,
-//   api_key: CLOUDINARY_API_KEY,
-//   api_secret: CLOUDINARY_API_SECRET,
-// });
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -187,8 +191,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
 
 /*--------------------Add Post-------------------------------*/
 router.post("/addPost", async function (req, res, next) {
-  // console.log("req.body", req.body);
-
+  console.log("req.body", req.body);
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
@@ -208,12 +211,14 @@ router.post("/addPost", async function (req, res, next) {
 
   const newPost = new PostModel({
     content: req.body.content,
+    image: req.body.photoAdded ? req.body.photoAdded : "",
     type: req.body.type,
     createur: userId,
     quartier: quartierId,
     commerceAssocie: userId,
     date: datePost,
     type: status,
+    image: req.body.photoAdded ? req.body.photoAdded : "",
   });
   const newPostSaved = await newPost.save();
   // console.log("newPostSaved", newPostSaved);
@@ -265,7 +270,6 @@ router.post("/event", async function (req, res, next) {
   });
   console.log("Event quartier ID", searchQuartier._id);
   const quartierId = searchQuartier._id;
-
   let dateDebutBdd = new Date(req.body.dateDebut);
   let dateFinBdd = new Date(req.body.dateFin);
 
@@ -276,24 +280,54 @@ router.post("/event", async function (req, res, next) {
     quartier: quartierId,
     dateDebut: dateDebutBdd,
     dateFin: dateFinBdd,
+    photo: req.body.image ? req.body.image : "",
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });
 });
 
 router.post("/upload", async function (req, res, next) {
-  const resultCloudinary = await cloudinary.uploader.upload("./tmp/avatar.jpg");
+  console.log("ROUTER POST UPLOAD req.files", req.files);
+  const adresseTMP = "./tmp/" + uniqid() + ".jpg";
+  const resultCopy = await req.files.photo.mv(adresseTMP);
+  const resultCloudinary = await cloudinary.uploader.upload(adresseTMP);
+  fs.unlinkSync(adresseTMP);
   res.json(resultCloudinary);
 });
 
-router.get("/chat", async function (req, res, next) {
-  console.log(">>req.query", req.query);
-  const searchUser = await UserModel.findOne({ token: req.query.token });
+router.post("/chat", async function (req, res, next) {
+  console.log(">>req.query", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
   const searchMessage = await MessageModel.find({
     emetteur: searchUser._id,
   });
   console.log("searchMessage", searchMessage);
-  res.json({ result: true, messages: searchMessage });
+  let dataMessage = [];
+
+  for (let i = 0; i < searchMessage.length; i++) {
+    let dateHours = searchMessage[i].date.getHours();
+    if (dateHours < 10) {
+      dateHours = `0${dateHours}`;
+    }
+    let dateMinutes = searchMessage[i].date.getMinutes();
+    if (dateMinutes < 10) {
+      dateMinutes = `0${dateMinutes}`;
+    }
+    const dateWeek = searchMessage[i].date.toLocaleDateString();
+    const message = searchMessage[i].message;
+    const messages = {
+      message: message,
+      user: searchUser.nom,
+      dateHours: dateHours,
+      dateMinutes: dateMinutes,
+      dateWeek: dateWeek,
+    };
+    dataMessage.push(messages);
+    console.log(">>messages", dataMessage);
+  }
+
+  res.json({ result: true, messages: dataMessage });
 });
 
 module.exports = router;

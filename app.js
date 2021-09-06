@@ -1,3 +1,4 @@
+var fileUpload = require("express-fileupload");
 require("dotenv").config();
 var createError = require("http-errors");
 var express = require("express");
@@ -10,6 +11,8 @@ var usersRouter = require("./routes/users");
 var mongoose = require("./models/connect");
 
 var app = express();
+
+app.use(fileUpload());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
