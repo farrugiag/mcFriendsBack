@@ -256,7 +256,10 @@ router.get("/feed", async function (req, res, next) {
     .populate("quartier")
     .exec();
   console.log("events", events);
-  const comments = await CommentaireModel.find().populate("post").exec();
+  const comments = await CommentaireModel.find()
+    .populate("post")
+    .populate("createur")
+    .exec();
   console.log("comments", comments);
   res.json({ result: true, posts, events, comments });
 });
