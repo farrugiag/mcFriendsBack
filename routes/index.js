@@ -11,6 +11,7 @@ const QuartierModel = require("../models/quartiers");
 const PostModel = require("../models/posts");
 const CommentaireModel = require("../models/commentaires");
 const EventModel = require("../models/events");
+const MessageModel = require("../models/messages");
 
 const cloudinary = require("cloudinary").v2;
 
@@ -227,6 +228,7 @@ router.post("/addPost", async function (req, res, next) {
 // POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
 router.post("/comment", async function (req, res, next) {
   // console.log("récup comment dans route:", req.body);
+  // console.log("récup postiD dans route:", req.body.postId);
   const searchUser = await UserModel.findOne({ token: req.body.token });
   // console.log("recherche user via token", searchUser);
   const userId = searchUser._id;
@@ -237,6 +239,7 @@ router.post("/comment", async function (req, res, next) {
     createur: userId,
     content: req.body.comment,
     date: dateComment,
+    post: req.body.postId,
   });
   const newCommentSaved = await newComment.save();
   // console.log("new comment saved:", newCommentSaved);
@@ -252,8 +255,10 @@ router.get("/feed", async function (req, res, next) {
     .populate("createur")
     .populate("quartier")
     .exec();
-  // console.log("events", events);
-  res.json({ result: true, posts, events });
+  console.log("events", events);
+  const comments = await CommentaireModel.find().populate("post").exec();
+  console.log("comments", comments);
+  res.json({ result: true, posts, events, comments });
 });
 
 router.post("/event", async function (req, res, next) {
@@ -294,14 +299,39 @@ router.post("/upload", async function (req, res, next) {
   res.json(resultCloudinary);
 });
 
-router.get("/chat", async function (req, res, next) {
-  // console.log(">>req.query", req.query);
-  const searchUser = await UserModel.findOne({ token: req.query.token });
+router.post("/chat", async function (req, res, next) {
+  console.log(">>req.query", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
   const searchMessage = await MessageModel.find({
     emetteur: searchUser._id,
   });
-  // console.log("searchMessage", searchMessage);
-  res.json({ result: true, messages: searchMessage });
+  console.log("searchMessage", searchMessage);
+  let dataMessage = [];
+
+  for (let i = 0; i < searchMessage.length; i++) {
+    let dateHours = searchMessage[i].date.getHours();
+    if (dateHours < 10) {
+      dateHours = `0${dateHours}`;
+    }
+    let dateMinutes = searchMessage[i].date.getMinutes();
+    if (dateMinutes < 10) {
+      dateMinutes = `0${dateMinutes}`;
+    }
+    const dateWeek = searchMessage[i].date.toLocaleDateString();
+    const message = searchMessage[i].message;
+    const messages = {
+      message: message,
+      user: searchUser.nom,
+      dateHours: dateHours,
+      dateMinutes: dateMinutes,
+      dateWeek: dateWeek,
+    };
+    dataMessage.push(messages);
+    console.log(">>messages", dataMessage);
+  }
+
+  res.json({ result: true, messages: dataMessage });
 });
 
 router.post("/feed-profil", async function (req, res, next) {
