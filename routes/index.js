@@ -4,6 +4,13 @@ const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
 const fs = require("fs");
 var uniqid = require("uniqid");
+const NodeGeocoder = require("node-geocoder");
+
+const options = {
+  provider: "here",
+  apiKey: "SgCTMEcZMJzV4VBEo3ZmoRZPLpZonDCMqTNEhOfT0sk",
+};
+const geocoder = NodeGeocoder(options);
 
 const request = require("sync-request");
 const UserModel = require("../models/users");
@@ -340,6 +347,30 @@ router.post("/feed-profil", async function (req, res, next) {
   const searchUserPost = await PostModel.find({ createur: userId });
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
+});
+
+router.get("/mapping", async function (req, res, next) {
+  let tableauLocCommercants = [];
+  const tableauCommercants = await UserModel.find({ status: "Commercant" })
+    .populate("events")
+    .exec();
+  for (let i = 0; i < tableauCommercants.length; i++) {
+    console.log(tableauCommercants[i], tableauCommercants[i].adresse);
+    const resMap = await geocoder.geocode({
+      address: tableauCommercants[i].adresse,
+      country: "Monaco",
+      zipcode: "98000",
+    });
+    console.log(resMap);
+    tableauLocCommercants.push({
+      latitude: resMap[0].latitude,
+      longitude: resMap[0].longitude,
+      nomEnseigne: tableauCommercants[i].nomEnseigne,
+      description: tableauCommercants[i].descriptionUser,
+      events: tableauCommercants[i].events,
+    });
+  }
+  res.json({ tableauLocCommercants });
 });
 
 module.exports = router;
