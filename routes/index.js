@@ -313,11 +313,26 @@ router.post("/upload", async function (req, res, next) {
 });
 
 router.post("/chat", async function (req, res, next) {
-  // console.log(">>req.query", req.body);
-  const searchUser = await UserModel.findOne({ token: req.body.token });
-  // console.log(">>searchUser", searchUser);
+  console.log(">>req.query", req.body);
+  const searchUserEmetteur = await UserModel.findOne({
+    token: req.body.tokenemetteur,
+  });
+  const searchUserRecepteur = await UserModel.findOne({
+    token: req.body.tokenrecepteur,
+  });
+  console.log(">>searchUserEmetteur", searchUserEmetteur);
+  console.log(">>searchUserRecepteur", searchUserRecepteur);
   const searchMessage = await MessageModel.find({
-    emetteur: searchUser._id,
+    $or: [
+      {
+        emetteur: searchUserEmetteur._id,
+        recepteur: searchUserRecepteur._id,
+      },
+      {
+        emetteur: searchUserRecepteur._id,
+        recepteur: searchUserEmetteur._id,
+      },
+    ],
   });
   // console.log("searchMessage", searchMessage);
   let dataMessage = [];
@@ -335,13 +350,13 @@ router.post("/chat", async function (req, res, next) {
     const message = searchMessage[i].message;
     const messages = {
       message: message,
-      user: searchUser.nom,
+      user: searchUserEmetteur.nom,
       dateHours: dateHours,
       dateMinutes: dateMinutes,
       dateWeek: dateWeek,
     };
     dataMessage.push(messages);
-    // console.log(">>messages", dataMessage);
+    console.log(">>messages", dataMessage);
   }
 
   res.json({ result: true, messages: dataMessage });
