@@ -451,7 +451,19 @@ router.post("/update-profil", async function (req, res, next) {
     );
   }
   res.json({ result: true, user: user });
-})
+});
+
+router.post("/display-user-info", async function (req, res, next) {
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  const user = {
+    nom: searchUser.nom,
+    prenom: searchUser.prenom,
+    dateDeNaissance: searchUser.dateDeNaissance,
+    civilite: searchUser.civilite,
+    email: searchUser.email,
+  };
+  res.json({result: true, user:user})
+});
 
 router.post("/feed-profil-search", async function (req, res, next) {
   console.log("req.body feeed profile search", req.body);
