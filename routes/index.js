@@ -376,7 +376,7 @@ router.get("/mapping", async function (req, res, next) {
       events: tableauCommercants[i].events,
     });
   }
-  console.log(tableauCommercants);
+  console.log(tableauLocCommercants);
   res.json({ tableauLocCommercants });
 });
 
