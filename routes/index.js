@@ -191,7 +191,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
 
 /*--------------------Add Post-------------------------------*/
 router.post("/addPost", async function (req, res, next) {
-  // console.log("req.body", req.body);
+  console.log("req.body", req.body);
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
@@ -201,9 +201,11 @@ router.post("/addPost", async function (req, res, next) {
   // console.log("satus search", searchStatusUser);
   const status = searchStatusUser.status;
 
+  
   const searchQuartier = await QuartierModel.findOne({
     name: req.body.quartier,
   });
+  console.log('searchQuartier', searchQuartier)
   const quartierId = searchQuartier._id;
   // console.log("id quartier", quartierId);
 
@@ -221,7 +223,7 @@ router.post("/addPost", async function (req, res, next) {
     image: req.body.photoAdded ? req.body.photoAdded : "",
   });
   const newPostSaved = await newPost.save();
-  // console.log("newPostSaved", newPostSaved);
+  console.log("newPostSaved", newPostSaved);
   res.json({ result: true, post: newPostSaved });
 });
 
@@ -255,12 +257,12 @@ router.get("/feed", async function (req, res, next) {
     .populate("createur")
     .populate("quartier")
     .exec();
-  console.log("events", events);
+  // console.log("events", events);
   const comments = await CommentaireModel.find()
     .populate("post")
     .populate("createur")
     .exec();
-  console.log("comments", comments);
+  // console.log("comments", comments);
   res.json({ result: true, posts, events, comments });
 });
 
@@ -303,13 +305,13 @@ router.post("/upload", async function (req, res, next) {
 });
 
 router.post("/chat", async function (req, res, next) {
-  console.log(">>req.query", req.body);
+  // console.log(">>req.query", req.body);
   const searchUser = await UserModel.findOne({ token: req.body.token });
-  console.log(">>searchUser", searchUser);
+  // console.log(">>searchUser", searchUser);
   const searchMessage = await MessageModel.find({
     emetteur: searchUser._id,
   });
-  console.log("searchMessage", searchMessage);
+  // console.log("searchMessage", searchMessage);
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
@@ -331,7 +333,7 @@ router.post("/chat", async function (req, res, next) {
       dateWeek: dateWeek,
     };
     dataMessage.push(messages);
-    console.log(">>messages", dataMessage);
+    // console.log(">>messages", dataMessage);
   }
 
   res.json({ result: true, messages: dataMessage });
@@ -342,7 +344,7 @@ router.post("/feed-profil", async function (req, res, next) {
   const userId = searchUser._id;
   const searchUserPost = await PostModel.find({ createur: userId })
   .populate('quartier');
-  console.log('searchUserPost', searchUserPost)
+  // console.log('searchUserPost', searchUserPost)
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
 });
