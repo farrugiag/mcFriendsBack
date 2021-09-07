@@ -465,4 +465,49 @@ router.post("/feed-profil-search", async function (req, res, next) {
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
 });
 
+router.post("/recherche-conversation", async function (req, res, next) {
+  console.log("req.body", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
+  const findMessages = await MessageModel.find({
+    $or: [
+      {
+        emetteur: searchUser._id,
+      },
+      {
+        recepteur: searchUser._id,
+      },
+    ],
+  })
+    .populate("recepteur")
+    .populate("emetteur");
+  console.log(">>findMessages", findMessages);
+  let dataConversation = [];
+
+  for (let i = 0; i < findMessages.length; i++) {
+    const message = findMessages[i];
+    let user = null;
+    let userToken = null;
+    if (message.emetteur.equals(searchUser._id)) {
+      user = message.recepteur.nom;
+      userToken = message.recepteur.token;
+    } else {
+      user = message.emetteur.nom;
+      userToken = message.emetteur.token;
+    }
+
+    console.log(">>user", user);
+
+    const userInfo = {
+      user: user,
+      token: userToken,
+      avatar: searchUser.profilePicture,
+    };
+    dataConversation.push(userInfo);
+    console.log(">>dataConversation", dataConversation);
+  }
+
+  res.json({ result: true, messages: dataConversation });
+});
+
 module.exports = router;
