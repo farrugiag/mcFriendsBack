@@ -208,11 +208,10 @@ router.post("/addPost", async function (req, res, next) {
   // console.log("satus search", searchStatusUser);
   const status = searchStatusUser.status;
 
-  
   const searchQuartier = await QuartierModel.findOne({
     name: req.body.quartier,
   });
-  console.log('searchQuartier', searchQuartier)
+  console.log("searchQuartier", searchQuartier);
   const quartierId = searchQuartier._id;
   // console.log("id quartier", quartierId);
 
@@ -349,8 +348,9 @@ router.post("/chat", async function (req, res, next) {
 router.post("/feed-profil", async function (req, res, next) {
   const searchUser = await UserModel.findOne({ token: req.body.token });
   const userId = searchUser._id;
-  const searchUserPost = await PostModel.find({ createur: userId })
-  .populate('quartier');
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
   // console.log('searchUserPost', searchUserPost)
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
@@ -398,6 +398,42 @@ router.post("/recherche-utilisateur-message", async function (req, res, next) {
     });
   }
   res.json({ userData });
+});
+
+router.post("/update-profil", async function (req, res, next) {
+  console.log("POST update-profil", req.body);
+
+  if (req.body.nom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { nom: req.body.nom }
+    );
+  }
+  if (req.body.prenom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.prenom }
+    );
+  }
+  if (req.body.dateDeNaissance) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.dateDeNaissance }
+    );
+  }
+  if (req.body.civilite) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { civilite: req.body.civilite }
+    );
+  }
+  if (req.body.email) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { email: req.body.email }
+    );
+  }
+  res.json({ result: true, user: user });
 });
 
 module.exports = router;
