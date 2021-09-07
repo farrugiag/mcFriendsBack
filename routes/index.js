@@ -8,7 +8,7 @@ const NodeGeocoder = require("node-geocoder");
 
 const options = {
   provider: "here",
-  apiKey: "SgCTMEcZMJzV4VBEo3ZmoRZPLpZonDCMqTNEhOfT0sk",
+  apiKey: process.env.HERE_GEOMAPPING_API_KEY,
 };
 const geocoder = NodeGeocoder(options);
 
@@ -376,6 +376,7 @@ router.get("/mapping", async function (req, res, next) {
       events: tableauCommercants[i].events,
     });
   }
+  console.log(tableauCommercants);
   res.json({ tableauLocCommercants });
 });
 
