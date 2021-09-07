@@ -4,6 +4,13 @@ const bcrypt = require("bcrypt");
 const uid2 = require("uid2");
 const fs = require("fs");
 var uniqid = require("uniqid");
+const NodeGeocoder = require("node-geocoder");
+
+const options = {
+  provider: "here",
+  apiKey: process.env.HERE_GEOMAPPING_API_KEY,
+};
+const geocoder = NodeGeocoder(options);
 
 const request = require("sync-request");
 const UserModel = require("../models/users");
@@ -347,6 +354,50 @@ router.post("/feed-profil", async function (req, res, next) {
   // console.log('searchUserPost', searchUserPost)
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
+});
+
+router.get("/mapping", async function (req, res, next) {
+  let tableauLocCommercants = [];
+  const tableauCommercants = await UserModel.find({ status: "Commercant" })
+    .populate("events")
+    .exec();
+  for (let i = 0; i < tableauCommercants.length; i++) {
+    console.log(tableauCommercants[i], tableauCommercants[i].adresse);
+    const resMap = await geocoder.geocode({
+      address: tableauCommercants[i].adresse,
+      country: "Monaco",
+      zipcode: "98000",
+    });
+    console.log(resMap);
+    tableauLocCommercants.push({
+      latitude: resMap[0].latitude,
+      longitude: resMap[0].longitude,
+      nomEnseigne: tableauCommercants[i].nomEnseigne,
+      description: tableauCommercants[i].descriptionUser,
+      events: tableauCommercants[i].events,
+    });
+  }
+  console.log(tableauLocCommercants);
+  res.json({ tableauLocCommercants });
+});
+
+router.post("/recherche-utilisateur-message", async function (req, res, next) {
+  // console.log(">>req.body searchUser", req.body);
+  const regexSearch = new RegExp(req.body.nameSearch, "i");
+  const findUsers = await UserModel.find({
+    nameSearch: regexSearch,
+  });
+  // console.log(">>find user", findUsers);
+  const userData = [];
+  for (let i = 0; i < findUsers.length; i++) {
+    const user = findUsers[i];
+    userData.push({
+      nom: user.nom,
+      prenom: user.prenom,
+      token: user.token,
+    });
+  }
+  res.json({ userData });
 });
 
 module.exports = router;
