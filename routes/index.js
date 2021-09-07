@@ -208,11 +208,10 @@ router.post("/addPost", async function (req, res, next) {
   // console.log("satus search", searchStatusUser);
   const status = searchStatusUser.status;
 
-  
   const searchQuartier = await QuartierModel.findOne({
     name: req.body.quartier,
   });
-  console.log('searchQuartier', searchQuartier)
+  console.log("searchQuartier", searchQuartier);
   const quartierId = searchQuartier._id;
   // console.log("id quartier", quartierId);
 
@@ -259,6 +258,7 @@ router.get("/feed", async function (req, res, next) {
   const posts = await PostModel.find()
     .populate("createur")
     .populate("quartier")
+    // .populate("commerceAssocie")
     .exec();
   const events = await EventModel.find()
     .populate("createur")
@@ -322,7 +322,7 @@ router.post("/chat", async function (req, res, next) {
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
-    let dateHours = searchMessage[i].date.getHours();
+    let dateHours = searchMessage[i].getHours();
     if (dateHours < 10) {
       dateHours = `0${dateHours}`;
     }
@@ -349,8 +349,9 @@ router.post("/chat", async function (req, res, next) {
 router.post("/feed-profil", async function (req, res, next) {
   const searchUser = await UserModel.findOne({ token: req.body.token });
   const userId = searchUser._id;
-  const searchUserPost = await PostModel.find({ createur: userId })
-  .populate('quartier');
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
   // console.log('searchUserPost', searchUserPost)
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
