@@ -164,8 +164,9 @@ router.post("/login", async function (req, res, next) {
 //POST SEARCH UTILISATEUR
 router.post("/recherche-utilisateur", async function (req, res, next) {
   // console.time("TIME RECHERCHE UTILISATEUR");
-  // console.log("POST SEARCH UTILISATEUR BODY: ", req.body);
-  const regexSearch = new RegExp(req.body.search, "i");
+  console.log("POST SEARCH UTILISATEUR BODY: ", req.body);
+  const regexSearch = new RegExp(req.body.nameSearch, "i");
+  console.log("regexSearch", regexSearch);
   // console.time("TIME RECHERCHE UTILISATEUR QUARTIER MODEL FINDONE");
   const quartierActivity = await QuartierModel.findOne({
     name: req.body.quartierSearch,
@@ -179,7 +180,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
     status: req.body.typeUtilisateurSearch,
   });
   // console.timeEnd("TIME RECHERCHE UTILISATEUR USERMODEL FINDONE");
-  // console.log("findUsers", findUsers);
+  console.log("findUsers", findUsers);
   const userTableau = [];
   for (let i = 0; i < findUsers.length; i++) {
     const user = findUsers[i];
@@ -190,6 +191,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
       description: user.description,
       profilePicture: user.profilePicture,
       status: user.status,
+      idUser: user._id,
     });
   }
   // console.timeEnd("TIME RECHERCHE UTILISATEUR");
@@ -208,11 +210,10 @@ router.post("/addPost", async function (req, res, next) {
   // console.log("satus search", searchStatusUser);
   const status = searchStatusUser.status;
 
-  
   const searchQuartier = await QuartierModel.findOne({
     name: req.body.quartier,
   });
-  console.log('searchQuartier', searchQuartier)
+  console.log("searchQuartier", searchQuartier);
   const quartierId = searchQuartier._id;
   // console.log("id quartier", quartierId);
 
@@ -349,8 +350,9 @@ router.post("/chat", async function (req, res, next) {
 router.post("/feed-profil", async function (req, res, next) {
   const searchUser = await UserModel.findOne({ token: req.body.token });
   const userId = searchUser._id;
-  const searchUserPost = await PostModel.find({ createur: userId })
-  .populate('quartier');
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
   // console.log('searchUserPost', searchUserPost)
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
@@ -398,6 +400,18 @@ router.post("/recherche-utilisateur-message", async function (req, res, next) {
     });
   }
   res.json({ userData });
+});
+
+router.post("/feed-profil-search", async function (req, res, next) {
+  console.log("req.body feeed profile search", req.body);
+  const searchUser = await UserModel.findById(req.body.idUser);
+  const userId = searchUser._id;
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
+  // console.log('searchUserPost', searchUserPost)
+
+  res.json({ result: true, userPosts: searchUserPost, user: searchUser });
 });
 
 module.exports = router;
