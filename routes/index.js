@@ -164,8 +164,9 @@ router.post("/login", async function (req, res, next) {
 //POST SEARCH UTILISATEUR
 router.post("/recherche-utilisateur", async function (req, res, next) {
   // console.time("TIME RECHERCHE UTILISATEUR");
-  // console.log("POST SEARCH UTILISATEUR BODY: ", req.body);
-  const regexSearch = new RegExp(req.body.search, "i");
+  console.log("POST SEARCH UTILISATEUR BODY: ", req.body);
+  const regexSearch = new RegExp(req.body.nameSearch, "i");
+  console.log("regexSearch", regexSearch);
   // console.time("TIME RECHERCHE UTILISATEUR QUARTIER MODEL FINDONE");
   const quartierActivity = await QuartierModel.findOne({
     name: req.body.quartierSearch,
@@ -179,7 +180,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
     status: req.body.typeUtilisateurSearch,
   });
   // console.timeEnd("TIME RECHERCHE UTILISATEUR USERMODEL FINDONE");
-  // console.log("findUsers", findUsers);
+  console.log("findUsers", findUsers);
   const userTableau = [];
   for (let i = 0; i < findUsers.length; i++) {
     const user = findUsers[i];
@@ -190,6 +191,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
       description: user.description,
       profilePicture: user.profilePicture,
       status: user.status,
+      idUser: user._id,
     });
   }
   // console.timeEnd("TIME RECHERCHE UTILISATEUR");
@@ -312,11 +314,26 @@ router.post("/upload", async function (req, res, next) {
 });
 
 router.post("/chat", async function (req, res, next) {
-  // console.log(">>req.query", req.body);
-  const searchUser = await UserModel.findOne({ token: req.body.token });
-  // console.log(">>searchUser", searchUser);
+  console.log(">>req.query", req.body);
+  const searchUserEmetteur = await UserModel.findOne({
+    token: req.body.tokenemetteur,
+  });
+  const searchUserRecepteur = await UserModel.findOne({
+    token: req.body.tokenrecepteur,
+  });
+  console.log(">>searchUserEmetteur", searchUserEmetteur);
+  console.log(">>searchUserRecepteur", searchUserRecepteur);
   const searchMessage = await MessageModel.find({
-    emetteur: searchUser._id,
+    $or: [
+      {
+        emetteur: searchUserEmetteur._id,
+        recepteur: searchUserRecepteur._id,
+      },
+      {
+        emetteur: searchUserRecepteur._id,
+        recepteur: searchUserEmetteur._id,
+      },
+    ],
   });
   // console.log("searchMessage", searchMessage);
   let dataMessage = [];
@@ -334,13 +351,13 @@ router.post("/chat", async function (req, res, next) {
     const message = searchMessage[i].message;
     const messages = {
       message: message,
-      user: searchUser.nom,
+      user: searchUserEmetteur.nom,
       dateHours: dateHours,
       dateMinutes: dateMinutes,
       dateWeek: dateWeek,
     };
     dataMessage.push(messages);
-    // console.log(">>messages", dataMessage);
+    console.log(">>messages", dataMessage);
   }
 
   res.json({ result: true, messages: dataMessage });
@@ -399,6 +416,111 @@ router.post("/recherche-utilisateur-message", async function (req, res, next) {
     });
   }
   res.json({ userData });
+});
+
+router.post("/update-profil", async function (req, res, next) {
+  console.log("POST update-profil", req.body);
+
+  if (req.body.nom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { nom: req.body.nom }
+    );
+  }
+  if (req.body.prenom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.prenom }
+    );
+  }
+  if (req.body.dateDeNaissance) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.dateDeNaissance }
+    );
+  }
+  if (req.body.civilite) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { civilite: req.body.civilite }
+    );
+  }
+  if (req.body.email) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { email: req.body.email }
+    );
+  }
+  res.json({ result: true, user: user });
+});
+
+router.post("/display-user-info", async function (req, res, next) {
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  const user = {
+    nom: searchUser.nom,
+    prenom: searchUser.prenom,
+    dateDeNaissance: searchUser.dateDeNaissance,
+    civilite: searchUser.civilite,
+    email: searchUser.email,
+  };
+  res.json({result: true, user:user})
+});
+
+router.post("/feed-profil-search", async function (req, res, next) {
+  console.log("req.body feeed profile search", req.body);
+  const searchUser = await UserModel.findById(req.body.idUser);
+  const userId = searchUser._id;
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
+  // console.log('searchUserPost', searchUserPost)
+
+  res.json({ result: true, userPosts: searchUserPost, user: searchUser });
+});
+
+router.post("/recherche-conversation", async function (req, res, next) {
+  console.log("req.body", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
+  const findMessages = await MessageModel.find({
+    $or: [
+      {
+        emetteur: searchUser._id,
+      },
+      {
+        recepteur: searchUser._id,
+      },
+    ],
+  })
+    .populate("recepteur")
+    .populate("emetteur");
+  console.log(">>findMessages", findMessages);
+  let dataConversation = [];
+
+  for (let i = 0; i < findMessages.length; i++) {
+    const message = findMessages[i];
+    let user = null;
+    let userToken = null;
+    if (message.emetteur.equals(searchUser._id)) {
+      user = message.recepteur.nom;
+      userToken = message.recepteur.token;
+    } else {
+      user = message.emetteur.nom;
+      userToken = message.emetteur.token;
+    }
+
+    console.log(">>user", user);
+
+    const userInfo = {
+      user: user,
+      token: userToken,
+      avatar: searchUser.profilePicture,
+    };
+    dataConversation.push(userInfo);
+    console.log(">>dataConversation", dataConversation);
+  }
+
+  res.json({ result: true, messages: dataConversation });
 });
 
 module.exports = router;
