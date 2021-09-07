@@ -429,4 +429,37 @@ router.post("/feed-profil-search", async function (req, res, next) {
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
 });
 
+router.post("/participate-event", async function (req, res, next) {
+  console.log("req.body du participate-event", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  const userId = searchUser._id;
+  const event = await EventModel.findById(req.body.idEvent);
+  console.log(event);
+  const copyParticipants = event.particants;
+  const newParticipants = [...copyParticipants, userId];
+  const eventUpdated = await EventModel.updateOne(
+    { _id: req.body.idEvent },
+    { particants: newParticipants }
+  );
+  // console.log(eventUpdated);
+  res.json({ result: true });
+});
+
+router.post("/load-event", async function (req, res, next) {
+  const searchEvent = await EventModel.findById(req.body.idEvent)
+    .populate("createur")
+    .populate("quartier")
+    .exec();
+  res.json({ event: searchEvent });
+});
+
+router.post("/commentaires-event", async function (req, res, next) {
+  const searchCommentaires = await CommentaireModel.find({
+    event: req.body.idEvent,
+  })
+    .populate("createur")
+    .exec();
+  res.json({ commentList: searchCommentaires });
+});
+
 module.exports = router;

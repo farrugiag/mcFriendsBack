@@ -5,6 +5,7 @@ const commentaireSchema = mongoose.Schema({
   content: String,
   date: Date,
   post: { type: mongoose.Schema.Types.ObjectId, ref: "posts" },
+  event: { type: mongoose.Schema.Types.ObjectId, ref: "events" },
 });
 
 const CommentaireModel = mongoose.model("commentaires", commentaireSchema);
