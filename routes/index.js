@@ -260,6 +260,7 @@ router.get("/feed", async function (req, res, next) {
   const posts = await PostModel.find()
     .populate("createur")
     .populate("quartier")
+    // .populate("commerceAssocie")
     .exec();
   const events = await EventModel.find()
     .populate("createur")
@@ -338,7 +339,7 @@ router.post("/chat", async function (req, res, next) {
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
-    let dateHours = searchMessage[i].date.getHours();
+    let dateHours = searchMessage[i].getHours();
     if (dateHours < 10) {
       dateHours = `0${dateHours}`;
     }
@@ -417,6 +418,54 @@ router.post("/recherche-utilisateur-message", async function (req, res, next) {
   res.json({ userData });
 });
 
+router.post("/update-profil", async function (req, res, next) {
+  console.log("POST update-profil", req.body);
+
+  if (req.body.nom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { nom: req.body.nom }
+    );
+  }
+  if (req.body.prenom) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.prenom }
+    );
+  }
+  if (req.body.dateDeNaissance) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { prenom: req.body.dateDeNaissance }
+    );
+  }
+  if (req.body.civilite) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { civilite: req.body.civilite }
+    );
+  }
+  if (req.body.email) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { email: req.body.email }
+    );
+  }
+  res.json({ result: true, user: user });
+});
+
+router.post("/display-user-info", async function (req, res, next) {
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  const user = {
+    nom: searchUser.nom,
+    prenom: searchUser.prenom,
+    dateDeNaissance: searchUser.dateDeNaissance,
+    civilite: searchUser.civilite,
+    email: searchUser.email,
+  };
+  res.json({ result: true, user: user });
+});
+
 router.post("/feed-profil-search", async function (req, res, next) {
   console.log("req.body feeed profile search", req.body);
   const searchUser = await UserModel.findById(req.body.idUser);
@@ -460,6 +509,51 @@ router.post("/commentaires-event", async function (req, res, next) {
     .populate("createur")
     .exec();
   res.json({ commentList: searchCommentaires });
+});
+
+router.post("/recherche-conversation", async function (req, res, next) {
+  console.log("req.body", req.body);
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  console.log(">>searchUser", searchUser);
+  const findMessages = await MessageModel.find({
+    $or: [
+      {
+        emetteur: searchUser._id,
+      },
+      {
+        recepteur: searchUser._id,
+      },
+    ],
+  })
+    .populate("recepteur")
+    .populate("emetteur");
+  console.log(">>findMessages", findMessages);
+  let dataConversation = [];
+
+  for (let i = 0; i < findMessages.length; i++) {
+    const message = findMessages[i];
+    let user = null;
+    let userToken = null;
+    if (message.emetteur.equals(searchUser._id)) {
+      user = message.recepteur.nom;
+      userToken = message.recepteur.token;
+    } else {
+      user = message.emetteur.nom;
+      userToken = message.emetteur.token;
+    }
+
+    console.log(">>user", user);
+
+    const userInfo = {
+      user: user,
+      token: userToken,
+      avatar: searchUser.profilePicture,
+    };
+    dataConversation.push(userInfo);
+    console.log(">>dataConversation", dataConversation);
+  }
+
+  res.json({ result: true, messages: dataConversation });
 });
 
 module.exports = router;
