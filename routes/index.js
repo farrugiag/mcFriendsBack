@@ -263,7 +263,10 @@ router.get("/feed", async function (req, res, next) {
     .populate("quartier")
     .exec();
   console.log("events", events);
-  const comments = await CommentaireModel.find().populate("post").exec();
+  const comments = await CommentaireModel.find()
+    .populate("post")
+    .populate("createur")
+    .exec();
   console.log("comments", comments);
   res.json({ result: true, posts, events, comments });
 });
@@ -307,13 +310,13 @@ router.post("/upload", async function (req, res, next) {
 });
 
 router.post("/chat", async function (req, res, next) {
-  console.log(">>req.query", req.body);
+  // console.log(">>req.query", req.body);
   const searchUser = await UserModel.findOne({ token: req.body.token });
-  console.log(">>searchUser", searchUser);
+  // console.log(">>searchUser", searchUser);
   const searchMessage = await MessageModel.find({
     emetteur: searchUser._id,
   });
-  console.log("searchMessage", searchMessage);
+  // console.log("searchMessage", searchMessage);
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
@@ -335,7 +338,7 @@ router.post("/chat", async function (req, res, next) {
       dateWeek: dateWeek,
     };
     dataMessage.push(messages);
-    console.log(">>messages", dataMessage);
+    // console.log(">>dataMessage", dataMessage);
   }
 
   res.json({ result: true, messages: dataMessage });
@@ -344,7 +347,10 @@ router.post("/chat", async function (req, res, next) {
 router.post("/feed-profil", async function (req, res, next) {
   const searchUser = await UserModel.findOne({ token: req.body.token });
   const userId = searchUser._id;
-  const searchUserPost = await PostModel.find({ createur: userId });
+  const searchUserPost = await PostModel.find({ createur: userId }).populate(
+    "quartier"
+  );
+  console.log("searchUserPost", searchUserPost);
 
   res.json({ result: true, userPosts: searchUserPost, user: searchUser });
 });
@@ -371,6 +377,25 @@ router.get("/mapping", async function (req, res, next) {
     });
   }
   res.json({ tableauLocCommercants });
+});
+
+router.post("/recherche-utilisateur-message", async function (req, res, next) {
+  // console.log(">>req.body searchUser", req.body);
+  const regexSearch = new RegExp(req.body.nameSearch, "i");
+  const findUsers = await UserModel.find({
+    nameSearch: regexSearch,
+  });
+  // console.log(">>find user", findUsers);
+  const userData = [];
+  for (let i = 0; i < findUsers.length; i++) {
+    const user = findUsers[i];
+    userData.push({
+      nom: user.nom,
+      prenom: user.prenom,
+      token: user.token,
+    });
+  }
+  res.json({ userData });
 });
 
 module.exports = router;
