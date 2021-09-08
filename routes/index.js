@@ -301,7 +301,7 @@ router.post("/event", async function (req, res, next) {
     dateDebut: dateDebutBdd,
     dateFin: dateFinBdd,
     date: dateEvent,
-    photo: req.body.image ? req.body.image : "",
+    image: req.body.image ? req.body.image : "",
   });
   const newEventSaved = await newEvent.save();
   res.json({ result: true, event: newEventSaved });

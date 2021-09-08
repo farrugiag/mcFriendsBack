@@ -8,7 +8,7 @@ const eventSchema = mongoose.Schema({
   dateDebut: Date,
   dateFin: Date,
   nomEvenement: String,
-  photo: String,
+  image: String,
   video: String,
   date: Date,
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "posts" }],
