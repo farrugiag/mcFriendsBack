@@ -457,6 +457,12 @@ router.post("/update-profil", async function (req, res, next) {
       { profilePicture: req.body.photoProfil }
     );
   }
+  if (req.body.photoCouverture) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { coverPicture: req.body.photoCouverture }
+    );
+  }
   res.json({ result: true });
 });
 
@@ -468,6 +474,8 @@ router.post("/display-user-info", async function (req, res, next) {
     dateDeNaissance: searchUser.dateDeNaissance,
     civilite: searchUser.civilite,
     email: searchUser.email,
+    profilePicture: searchUser.profilePicture,
+    coverPicture: searchUser.coverPicture,
   };
   res.json({ result: true, user: user });
 });
