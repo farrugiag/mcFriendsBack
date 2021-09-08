@@ -291,6 +291,7 @@ router.post("/event", async function (req, res, next) {
   const quartierId = searchQuartier._id;
   let dateDebutBdd = new Date(req.body.dateDebut);
   let dateFinBdd = new Date(req.body.dateFin);
+  const dateEvent = new Date();
 
   const newEvent = new EventModel({
     createur: userId,
@@ -299,6 +300,7 @@ router.post("/event", async function (req, res, next) {
     quartier: quartierId,
     dateDebut: dateDebutBdd,
     dateFin: dateFinBdd,
+    date: dateEvent,
     photo: req.body.image ? req.body.image : "",
   });
   const newEventSaved = await newEvent.save();

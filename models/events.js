@@ -10,6 +10,7 @@ const eventSchema = mongoose.Schema({
   nomEvenement: String,
   photo: String,
   video: String,
+  date: Date,
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "posts" }],
 });
 
