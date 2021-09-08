@@ -200,11 +200,12 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
 
 /*--------------------Add Post-------------------------------*/
 router.post("/addPost", async function (req, res, next) {
-  console.log("req.body", req.body);
+  // console.log("req.body", req.body);
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
   const userId = searchTokenUser._id;
+  
 
   const searchStatusUser = await UserModel.findById(searchTokenUser._id);
   // console.log("satus search", searchStatusUser);
@@ -231,7 +232,7 @@ router.post("/addPost", async function (req, res, next) {
     image: req.body.photoAdded ? req.body.photoAdded : "",
   });
   const newPostSaved = await newPost.save();
-  console.log("newPostSaved", newPostSaved);
+  // console.log("newPostSaved", newPostSaved);
   res.json({ result: true, post: newPostSaved });
 });
 
@@ -451,7 +452,7 @@ router.post("/update-profil", async function (req, res, next) {
       { email: req.body.email }
     );
   }
-  res.json({ result: true, user: user });
+  res.json({ result: true, user: updateUser });
 });
 
 router.post("/display-user-info", async function (req, res, next) {
@@ -555,5 +556,10 @@ router.post("/recherche-conversation", async function (req, res, next) {
 
   res.json({ result: true, messages: dataConversation });
 });
+
+router.post('/get-user', async function (req, res, next){
+  const searchUser = await UserModel.findOne({token: req.body.token})
+  res.json({result: true, searchUser})
+})
 
 module.exports = router;
