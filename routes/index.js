@@ -349,13 +349,24 @@ router.post("/chat", async function (req, res, next) {
     }
     const dateWeek = searchMessage[i].date.toLocaleDateString();
     const message = searchMessage[i].message;
-    const messages = {
-      message: message,
-      user: searchMessage[i].emetteur.prenom,
-      dateHours: dateHours,
-      dateMinutes: dateMinutes,
-      dateWeek: dateWeek,
-    };
+    let messages = null;
+    if (searchMessage[i].emetteur.status === "Particulier") {
+      messages = {
+        message: message,
+        user: searchMessage[i].emetteur.prenom,
+        dateHours: dateHours,
+        dateMinutes: dateMinutes,
+        dateWeek: dateWeek,
+      };
+    } else if (searchMessage[i].emetteur.status === "Commercant") {
+      messages = {
+        message: message,
+        user: searchMessage[i].emetteur.nomEnseigne,
+        dateHours: dateHours,
+        dateMinutes: dateMinutes,
+        dateWeek: dateWeek,
+      };
+    }
     dataMessage.push(messages);
     console.log(">>messages", dataMessage);
   }
@@ -541,28 +552,34 @@ router.post("/recherche-conversation", async function (req, res, next) {
   })
     .populate("recepteur")
     .populate("emetteur");
-  // console.log(">>findMessages", findMessages);
+  console.log(">>findMessages", findMessages);
   let dataConversation = [];
 
   for (let i = 0; i < findMessages.length; i++) {
     const message = findMessages[i];
     let user = null;
     let userToken = null;
-
+    let avatar = null;
+    let userCommercant = null;
     if (message.emetteur.equals(searchUser._id)) {
       user = message.recepteur.nom;
+      userCommercant = message.recepteur.nomEnseigne;
       userToken = message.recepteur.token;
+      avatar = message.recepteur.profilePicture;
     } else {
       user = message.emetteur.nom;
+      userCommercant = message.emetteur.nomEnseigne;
       userToken = message.emetteur.token;
+      avatar = message.emetteur.profilePicture;
     }
 
-    // console.log(">>user", user);
+    console.log(">>user", user);
 
     const userInfo = {
       user: user,
+      userCommercant,
       token: userToken,
-      avatar: searchUser.profilePicture,
+      avatar: avatar,
     };
     const findUser = dataConversation.find((el) => el.user === user);
     if (findUser === undefined) {
