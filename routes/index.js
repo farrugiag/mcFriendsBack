@@ -105,6 +105,7 @@ router.post("/signup-commercant", async function (req, res, next) {
   const quartierId = quartierActivity._id;
   const newUser = new UserModel({
     status: "Commercant",
+    nameSearch: req.body.nomEnseigne,
     nomEnseigne: req.body.nomEnseigne,
     numRCI: req.body.numRCI,
     adresse: req.body.adresse,
