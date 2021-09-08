@@ -451,7 +451,13 @@ router.post("/update-profil", async function (req, res, next) {
       { email: req.body.email }
     );
   }
-  res.json({ result: true, user: user });
+  if (req.body.photoProfil) {
+    const updateUser = await UserModel.updateOne(
+      { token: req.body.token },
+      { profilePicture: req.body.photoProfil }
+    );
+  }
+  res.json({ result: true });
 });
 
 router.post("/display-user-info", async function (req, res, next) {
