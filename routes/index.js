@@ -542,7 +542,7 @@ router.post("/commentaires-event", async function (req, res, next) {
 router.post("/recherche-conversation", async function (req, res, next) {
   // console.log("req.body", req.body);
   const searchUser = await UserModel.findOne({ token: req.body.token });
-  // console.log(">>searchUser", searchUser);
+  console.log(">>searchUser", searchUser);
   const findMessages = await MessageModel.find({
     $or: [
       {
