@@ -200,7 +200,7 @@ router.post("/recherche-utilisateur", async function (req, res, next) {
 
 /*--------------------Add Post-------------------------------*/
 router.post("/addPost", async function (req, res, next) {
-  console.log("req.body", req.body);
+  // console.log("req.body", req.body);
   const searchTokenUser = await UserModel.findOne({
     token: req.body.token,
   });
@@ -231,7 +231,7 @@ router.post("/addPost", async function (req, res, next) {
     image: req.body.photoAdded ? req.body.photoAdded : "",
   });
   const newPostSaved = await newPost.save();
-  console.log("newPostSaved", newPostSaved);
+  // console.log("newPostSaved", newPostSaved);
   res.json({ result: true, post: newPostSaved });
 });
 
@@ -560,6 +560,11 @@ router.post("/recherche-conversation", async function (req, res, next) {
   }
 
   res.json({ result: true, messages: dataConversation });
+});
+
+router.post("/get-user", async function (req, res, next) {
+  const searchUser = await UserModel.findOne({ token: req.body.token });
+  res.json({ result: true, searchUser });
 });
 
 module.exports = router;
