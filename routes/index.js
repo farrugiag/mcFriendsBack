@@ -334,12 +334,12 @@ router.post("/chat", async function (req, res, next) {
         recepteur: searchUserEmetteur._id,
       },
     ],
-  });
-  // console.log("searchMessage", searchMessage);
+  }).populate("emetteur");
+  console.log("searchMessage", searchMessage);
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
-    let dateHours = searchMessage[i].getHours();
+    let dateHours = searchMessage[i].date.getHours();
     if (dateHours < 10) {
       dateHours = `0${dateHours}`;
     }
@@ -351,7 +351,7 @@ router.post("/chat", async function (req, res, next) {
     const message = searchMessage[i].message;
     const messages = {
       message: message,
-      user: searchUserEmetteur.nom,
+      user: searchMessage[i].emetteur.prenom,
       dateHours: dateHours,
       dateMinutes: dateMinutes,
       dateWeek: dateWeek,
@@ -512,9 +512,9 @@ router.post("/commentaires-event", async function (req, res, next) {
 });
 
 router.post("/recherche-conversation", async function (req, res, next) {
-  console.log("req.body", req.body);
+  // console.log("req.body", req.body);
   const searchUser = await UserModel.findOne({ token: req.body.token });
-  console.log(">>searchUser", searchUser);
+  // console.log(">>searchUser", searchUser);
   const findMessages = await MessageModel.find({
     $or: [
       {
@@ -527,13 +527,14 @@ router.post("/recherche-conversation", async function (req, res, next) {
   })
     .populate("recepteur")
     .populate("emetteur");
-  console.log(">>findMessages", findMessages);
+  // console.log(">>findMessages", findMessages);
   let dataConversation = [];
 
   for (let i = 0; i < findMessages.length; i++) {
     const message = findMessages[i];
     let user = null;
     let userToken = null;
+
     if (message.emetteur.equals(searchUser._id)) {
       user = message.recepteur.nom;
       userToken = message.recepteur.token;
@@ -542,15 +543,18 @@ router.post("/recherche-conversation", async function (req, res, next) {
       userToken = message.emetteur.token;
     }
 
-    console.log(">>user", user);
+    // console.log(">>user", user);
 
     const userInfo = {
       user: user,
       token: userToken,
       avatar: searchUser.profilePicture,
     };
-    dataConversation.push(userInfo);
-    console.log(">>dataConversation", dataConversation);
+    const findUser = dataConversation.find((el) => el.user === user);
+    if (findUser === undefined) {
+      dataConversation.push(userInfo);
+    }
+    // console.log(">>dataConversation", dataConversation);
   }
 
   res.json({ result: true, messages: dataConversation });
