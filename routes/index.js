@@ -396,12 +396,20 @@ router.post("/chat", async function (req, res, next) {
 router.post("/feed-profil", async function (req, res, next) {
   const searchUser = await UserModel.findOne({ token: req.body.token });
   const userId = searchUser._id;
-  const searchUserPost = await PostModel.find({ createur: userId }).populate(
-    "quartier"
-  );
-  // console.log('searchUserPost', searchUserPost)
+  const searchUserPost = await PostModel.find({ createur: userId })
+    .populate("quartier")
+    .populate("createur");
+  console.log("searchUserPost", searchUserPost);
+  const searchUserEvent = await EventModel.find({ createur: userId })
+    .populate("quartier")
+    .populate("createur");
 
-  res.json({ result: true, userPosts: searchUserPost, user: searchUser });
+  res.json({
+    result: true,
+    userPosts: searchUserPost,
+    userEvents: searchUserEvent,
+    user: searchUser,
+  });
 });
 
 router.get("/mapping", async function (req, res, next) {
