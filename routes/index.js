@@ -317,15 +317,15 @@ router.post("/upload", async function (req, res, next) {
 });
 
 router.post("/chat", async function (req, res, next) {
-  console.log(">>req.query", req.body);
+  // console.log(">>req.query", req.body);
   const searchUserEmetteur = await UserModel.findOne({
     token: req.body.tokenemetteur,
   });
   const searchUserRecepteur = await UserModel.findOne({
     token: req.body.tokenrecepteur,
   });
-  console.log(">>searchUserEmetteur", searchUserEmetteur);
-  console.log(">>searchUserRecepteur", searchUserRecepteur);
+  // console.log(">>searchUserEmetteur", searchUserEmetteur);
+  // console.log(">>searchUserRecepteur", searchUserRecepteur);
   const searchMessage = await MessageModel.find({
     $or: [
       {
@@ -338,7 +338,8 @@ router.post("/chat", async function (req, res, next) {
       },
     ],
   }).populate("emetteur");
-  console.log("searchMessage", searchMessage);
+  // .populate("recepteur");
+  // console.log("searchMessage", searchMessage);
   let dataMessage = [];
 
   for (let i = 0; i < searchMessage.length; i++) {
@@ -352,6 +353,7 @@ router.post("/chat", async function (req, res, next) {
     }
     const dateWeek = searchMessage[i].date.toLocaleDateString();
     const message = searchMessage[i].message;
+    console.log("searchMessage[i]", searchMessage[i]);
     let messages = null;
     if (searchMessage[i].emetteur.status === "Particulier") {
       messages = {
@@ -370,8 +372,9 @@ router.post("/chat", async function (req, res, next) {
         dateWeek: dateWeek,
       };
     }
+
     dataMessage.push(messages);
-    console.log(">>messages", dataMessage);
+    console.log(">>dataMessage", dataMessage);
   }
 
   res.json({ result: true, messages: dataMessage });
@@ -427,6 +430,7 @@ router.post("/recherche-utilisateur-message", async function (req, res, next) {
       nom: user.nom,
       prenom: user.prenom,
       token: user.token,
+      avatar: user.profilePicture,
     });
   }
   res.json({ userData });
