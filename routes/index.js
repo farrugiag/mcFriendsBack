@@ -413,6 +413,7 @@ router.get("/mapping", async function (req, res, next) {
     console.log(tableauCommercants[i], tableauCommercants[i].adresse);
     const resMap = await geocoder.geocode({
       address: tableauCommercants[i].adresse,
+      state: "Monaco",
       country: "Monaco",
       zipcode: "98000",
     });
