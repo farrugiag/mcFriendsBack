@@ -238,7 +238,7 @@ router.post("/addPost", async function (req, res, next) {
 
 // POST RECEPTION ET ENVOI COMMENTAIRE EN BDD
 router.post("/comment", async function (req, res, next) {
-  // console.log("récup comment dans route:", req.body);
+  console.log("récup comment dans route:", req.body);
   // console.log("récup postiD dans route:", req.body.postId);
   const searchUser = await UserModel.findOne({ token: req.body.token });
   // console.log("recherche user via token", searchUser);
@@ -246,15 +246,30 @@ router.post("/comment", async function (req, res, next) {
   // console.log("userId via token:", userId);
   const dateComment = new Date();
   // console.log("date comment:", dateComment);
-  const newComment = new CommentaireModel({
-    createur: userId,
-    content: req.body.comment,
-    date: dateComment,
-    post: req.body.postId,
-  });
-  const newCommentSaved = await newComment.save();
-  // console.log("new comment saved:", newCommentSaved);
-  res.json({ result: true, comment: newCommentSaved });
+  if (req.body.isEvent === "false") {
+    const newComment = new CommentaireModel({
+      createur: userId,
+      content: req.body.comment,
+      date: dateComment,
+      post: req.body.postId,
+    });
+    const newCommentSaved = await newComment.save();
+    // console.log("new comment saved:", newCommentSaved);
+    res.json({ result: true, comment: newCommentSaved });
+    return;
+  }
+  if (req.body.isEvent === "true") {
+    const newComment = new CommentaireModel({
+      createur: userId,
+      content: req.body.comment,
+      date: dateComment,
+      event: req.body.postId,
+    });
+    const newCommentSaved = await newComment.save();
+    // console.log("new comment saved:", newCommentSaved);
+    res.json({ result: true, comment: newCommentSaved });
+    return;
+  }
 });
 // RENVOI POST AU FEED
 router.get("/feed", async function (req, res, next) {
@@ -270,6 +285,7 @@ router.get("/feed", async function (req, res, next) {
   // console.log("events", events);
   const comments = await CommentaireModel.find()
     .populate("post")
+    .populate("event")
     .populate("createur")
     .exec();
   // console.log("comments", comments);
