@@ -594,12 +594,12 @@ router.post("/recherche-conversation", async function (req, res, next) {
     let avatar = null;
     let userCommercant = null;
     if (message.emetteur.equals(searchUser._id)) {
-      user = message.recepteur.nom;
+      user = message.recepteur.prenom;
       userCommercant = message.recepteur.nomEnseigne;
       userToken = message.recepteur.token;
       avatar = message.recepteur.profilePicture;
     } else {
-      user = message.emetteur.nom;
+      user = message.emetteur.prenom;
       userCommercant = message.emetteur.nomEnseigne;
       userToken = message.emetteur.token;
       avatar = message.emetteur.profilePicture;

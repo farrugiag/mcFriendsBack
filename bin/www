@@ -63,7 +63,7 @@ io.on("connection", function (socket) {
     // console.log(">>date", dateWeek);
     const dataMessage = {
       message: message.message,
-      user: searchUserEmetteur.nom,
+      user: searchUserEmetteur.prenom,
       dateHours: dateHours,
       dateMinutes: dateMinutes,
       dateWeek: dateWeek,
